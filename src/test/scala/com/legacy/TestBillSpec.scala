@@ -11,6 +11,8 @@ class TestBillSpec extends FlatSpec with Matchers {
 
   val hotFoodPurchase = List("Coffee", "Steak Sandwish")
 
+  val foodPurchase = List("Cola", "Coffee", "Cheese Sandwish")
+
 
   val moreFoods = allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
@@ -31,15 +33,15 @@ class TestBillSpec extends FlatSpec with Matchers {
   }
 
   it should "return 10% of service charge" in {
-    val serviceCharge = new ServiceCharge(firstPurchase)
-    val serviceChargeAmount = serviceCharge.getFoodCharge
+    val serviceCharge = new ServiceCharge(foodPurchase)
+    val serviceChargeAmount = serviceCharge.calculateHotnessCharge
     serviceChargeAmount shouldEqual 0.35
   }
 
   it should "return 20% of service charge" in {
     val serviceCharge = new ServiceCharge(hotFoodPurchase)
     val hotFoodServiceCharge = serviceCharge.calculateHotnessCharge
-    hotFoodServiceCharge shouldEqual 0.70
+    hotFoodServiceCharge shouldEqual 1.10
   }
 
   it should "not add more than 20 pounds to service charge" in {

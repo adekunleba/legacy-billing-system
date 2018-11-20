@@ -18,8 +18,9 @@ case class Food(name: String, amount: BigDecimal, foodType:PurchasesTypes.Value)
 
 class ServiceCharge(items: List[String]) {
 
-  val totalAmount: Double = makePurchaseBill
+
   private def round(value: BigDecimal): Double = value.setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  val totalAmount: Double = makePurchaseBill
 
   def makeItem(item: String) : Purchases = {
     item.toLowerCase match {
