@@ -40,7 +40,7 @@ class ServiceCharge(items: List[String]) {
     case _ if items.map(makeItem).exists(x => x.isInstanceOf[Food]) => calculateHotnessCharge
   }
 
-  def getHotnessCharge: List[Boolean] = items.map(makeItem)  {
+  def getHotnessCharge: List[Boolean] = items.map(makeItem).map {
       case d: Food if d.foodType == PurchasesTypes.HOT => true
       case _ => false
     }
