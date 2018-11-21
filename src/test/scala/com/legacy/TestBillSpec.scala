@@ -18,6 +18,12 @@ class TestBillSpec extends FlatSpec with Matchers {
 
   val moreFoods = allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
+    hotFoodPurchase ::: allDrinks ::: allDrinks ::: hotFoodPurchase :::
+    allDrinks ::: hotFoodPurchase ::: allDrinks :::
+    hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
+    hotFoodPurchase ::: allDrinks ::: allDrinks ::: hotFoodPurchase :::
+    allDrinks ::: hotFoodPurchase ::: allDrinks :::
+    hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
     hotFoodPurchase ::: allDrinks ::: allDrinks ::: hotFoodPurchase
        //Drink("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 

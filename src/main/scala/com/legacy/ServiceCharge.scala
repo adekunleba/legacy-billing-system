@@ -6,9 +6,7 @@ sealed trait ServedStatus
 case object HOT extends ServedStatus
 case object COLD extends ServedStatus
 
-trait Purchases {
-  val price: BigDecimal
-}
+trait Purchases {val price: BigDecimal}
 case class Drink(name: String, amount : BigDecimal,  itemType: ServedStatus) extends Purchases {
   override val price: BigDecimal = amount
 }
@@ -17,14 +15,12 @@ case class Food(name: String, amount: BigDecimal, foodType:ServedStatus) extends
 }
 
 
-
 class ServiceCharge(items: List[String]) {
-
-
+  private val purchaseItems = items.map(makeItem)
   private def round(value: BigDecimal): Double = value.setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   val totalAmount: Double = makePurchaseBill
 
-  def makeItem(item: String) : Purchases = {
+  private def makeItem(item: String) : Purchases = {
     item.toLowerCase match {
       case "cola" => Drink("cola", 0.50, COLD)
       case "coffee" => Drink("coffee", 1.00, HOT)
@@ -35,12 +31,12 @@ class ServiceCharge(items: List[String]) {
   }
 
   def makePurchaseBill :Double ={
-    round(items.map(makeItem).map(_.price).sum)
+    round(purchaseItems.map(_.price).sum)
   }
 
   def getFoodCharge :Double =  items match {
-    case _ if items.map(makeItem).forall(x => x.isInstanceOf[Drink]) =>  0
-    case _ if items.map(makeItem).exists(x => x.isInstanceOf[Food]) => calculateHotnessCharge
+    case _ if purchaseItems.forall(x => x.isInstanceOf[Drink]) =>  0
+    case _ if purchaseItems.exists(x => x.isInstanceOf[Food]) => calculateHotnessCharge
   }
 
   def getHotnessCharge: List[Boolean] = items.map(makeItem).map {
