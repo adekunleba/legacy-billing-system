@@ -1,16 +1,18 @@
 package com.legacy
 
-object PurchasesTypes extends Enumeration{
-  val HOT, COLD = Value
-}
+//Using Case Class in case of Enumeration
+
+sealed trait ServedStatus
+case object HOT extends ServedStatus
+case object COLD extends ServedStatus
 
 trait Purchases {
   val price: BigDecimal
 }
-case class Drink(name: String, amount : BigDecimal,  itemType: PurchasesTypes.Value) extends Purchases {
+case class Drink(name: String, amount : BigDecimal,  itemType: ServedStatus) extends Purchases {
   override val price: BigDecimal = amount
 }
-case class Food(name: String, amount: BigDecimal, foodType:PurchasesTypes.Value) extends Purchases {
+case class Food(name: String, amount: BigDecimal, foodType:ServedStatus) extends Purchases {
   override val price: BigDecimal = amount
 }
 
@@ -24,10 +26,10 @@ class ServiceCharge(items: List[String]) {
 
   def makeItem(item: String) : Purchases = {
     item.toLowerCase match {
-      case "cola" => Drink("cola", 0.50, PurchasesTypes.COLD)
-      case "coffee" => Drink("coffee", 1.00, PurchasesTypes.HOT)
-      case "cheese sandwish" => Food("cheese sandwish", 2.00, PurchasesTypes.COLD)
-      case "steak sandwish" => Food("stead sandwish", 4.50, PurchasesTypes.HOT)
+      case "cola" => Drink("cola", 0.50, COLD)
+      case "coffee" => Drink("coffee", 1.00, HOT)
+      case "cheese sandwish" => Food("cheese sandwish", 2.00,COLD)
+      case "steak sandwish" => Food("steaK sandwish", 4.50, HOT)
       case _ => throw new IllegalArgumentException(s"Item $item not found")
     }
   }
@@ -42,7 +44,7 @@ class ServiceCharge(items: List[String]) {
   }
 
   def getHotnessCharge: List[Boolean] = items.map(makeItem).map {
-      case d: Food if d.foodType == PurchasesTypes.HOT => true
+      case d: Food if d.foodType == HOT => true
       case _ => false
     }
 
