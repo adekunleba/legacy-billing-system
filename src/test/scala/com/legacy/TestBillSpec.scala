@@ -13,6 +13,8 @@ class TestBillSpec extends FlatSpec with Matchers {
 
   val foodPurchase = List("Cola", "Coffee", "Cheese Sandwish")
 
+  val oddFoods = List("Cola", "Fish Sandwish", "Coffee")
+
 
   val moreFoods = allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
@@ -49,5 +51,11 @@ class TestBillSpec extends FlatSpec with Matchers {
     val totalPrice = serviceCharge.makePurchaseBill
     val billDifference = totalPrice - serviceCharge.getBill
     billDifference should be <= 20.0
+  }
+
+  it should "throw IllegalArgumentError " in {
+    an[IllegalArgumentException] should be thrownBy {
+      val serviceCharge = new ServiceCharge(oddFoods)
+    }
   }
 }
