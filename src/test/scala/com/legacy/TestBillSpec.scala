@@ -21,7 +21,7 @@ class TestBillSpec extends FlatSpec with Matchers {
     hotFoodPurchase ::: allDrinks ::: allDrinks ::: hotFoodPurchase
        //Drink("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 
-  it should "show give total amount of purchases" in {
+  it should "give total amount of purchases" in {
     val totalPrice = new ServiceCharge(firstPurchase).makePurchaseBill
     totalPrice shouldEqual 3.5
     totalPrice.isInstanceOf[Double] shouldEqual true
@@ -34,26 +34,26 @@ class TestBillSpec extends FlatSpec with Matchers {
     totalAfterServiceCharge shouldEqual totalPrice
   }
 
-  it should "return 10% of service charge" in {
+  it should "return 10% of service charge in case there is Food" in {
     val serviceCharge = new ServiceCharge(foodPurchase)
     val serviceChargeAmount = serviceCharge.calculateHotnessCharge
     serviceChargeAmount shouldEqual 0.35
   }
 
-  it should "return 20% of service charge" in {
+  it should "return 20% of service charge in case there is hot Food" in {
     val serviceCharge = new ServiceCharge(hotFoodPurchase)
     val hotFoodServiceCharge = serviceCharge.calculateHotnessCharge
     hotFoodServiceCharge shouldEqual 1.10
   }
 
-  it should "not add more than 20 pounds to service charge" in {
+  it should "not add more than 20 pounds to service charge no matter how much items were ordered" in {
     val serviceCharge = new ServiceCharge(moreFoods)
     val totalPrice = serviceCharge.makePurchaseBill
     val billDifference = totalPrice - serviceCharge.getBill
     billDifference should be <= 20.0
   }
 
-  it should "throw IllegalArgumentError " in {
+  it should "throw IllegalArgumentError when item not part of available options" in {
     an[IllegalArgumentException] should be thrownBy {
       val serviceCharge = new ServiceCharge(oddFoods)
     }
