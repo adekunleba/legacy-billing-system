@@ -28,33 +28,35 @@ class TestBillSpec extends FlatSpec with Matchers {
        //Drink("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 
   it should "give total amount of purchases" in {
-    val totalPrice = new ServiceCharge(firstPurchase).makePurchaseBill
+    val totalPrice = new ServiceCharge(firstPurchase).totalAmountWithoutServiceCharge
     totalPrice shouldEqual 3.5
     totalPrice.isInstanceOf[Double] shouldEqual true
   }
 
   it should "not apply any service charge when all purchases are drinks" in {
     val serviceCharge = new ServiceCharge(allDrinks)
-    val totalPrice = serviceCharge.makePurchaseBill
+    val totalPrice = serviceCharge.totalAmountWithoutServiceCharge
     val totalAfterServiceCharge = serviceCharge.getBill
     totalAfterServiceCharge shouldEqual totalPrice
   }
 
   it should "return 10% of service charge in case there is Food" in {
     val serviceCharge = new ServiceCharge(foodPurchase)
-    val serviceChargeAmount = serviceCharge.calculateHotnessCharge
-    serviceChargeAmount shouldEqual 0.35
+    val totalBill = serviceCharge.getBill
+    val totalAmount = serviceCharge.totalAmountWithoutServiceCharge
+    totalBill shouldEqual totalAmount + 0.35
   }
 
   it should "return 20% of service charge in case there is hot Food" in {
     val serviceCharge = new ServiceCharge(hotFoodPurchase)
-    val hotFoodServiceCharge = serviceCharge.calculateHotnessCharge
-    hotFoodServiceCharge shouldEqual 1.10
+    val totalBillWithHotFood = serviceCharge.getBill
+    val totalOrdinaryBill = serviceCharge.totalAmountWithoutServiceCharge
+    totalBillWithHotFood shouldEqual totalOrdinaryBill + 1.10
   }
 
   it should "not add more than 20 pounds to service charge no matter how much items were ordered" in {
     val serviceCharge = new ServiceCharge(moreFoods)
-    val totalPrice = serviceCharge.makePurchaseBill
+    val totalPrice = serviceCharge.totalAmountWithoutServiceCharge
     val billDifference = totalPrice - serviceCharge.getBill
     billDifference should be <= 20.0
   }
