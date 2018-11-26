@@ -25,43 +25,37 @@ class TestBillSpec extends FlatSpec with Matchers {
     allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
     hotFoodPurchase ::: allDrinks ::: allDrinks ::: hotFoodPurchase
-       //Drink("Coffee", Pounds(1.00), PurchasesTypes.COLD)
+       //DRINK("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 
   it should "give total amount of purchases" in {
-    val totalPrice = new ServiceCharge(firstPurchase).makePurchaseBill
+    val totalPrice = ServiceCharge.bill(firstPurchase)
     totalPrice shouldEqual 3.5
     totalPrice.isInstanceOf[Double] shouldEqual true
   }
 
   it should "not apply any service charge when all purchases are drinks" in {
-    val serviceCharge = new ServiceCharge(allDrinks)
-    val totalPrice = serviceCharge.makePurchaseBill
-    val totalAfterServiceCharge = serviceCharge.getBill
+    val totalPrice = ServiceCharge.bill(allDrinks)
+    val totalAfterServiceCharge = ServiceCharge.billWithCharge(allDrinks)
     totalAfterServiceCharge shouldEqual totalPrice
   }
 
-  it should "return 10% of service charge in case there is Food" in {
-    val serviceCharge = new ServiceCharge(foodPurchase)
-    val serviceChargeAmount = serviceCharge.calculateHotnessCharge
-    serviceChargeAmount shouldEqual 0.35
+  it should "return 10% of service charge in case there is FOOD" in {
+    val totalAfterServiceCharge = ServiceCharge.billWithCharge(foodPurchase)
+    val totalPrice  = ServiceCharge.bill(foodPurchase)
+    totalAfterServiceCharge shouldEqual 0.35 + totalPrice
   }
 
-  it should "return 20% of service charge in case there is hot Food" in {
-    val serviceCharge = new ServiceCharge(hotFoodPurchase)
-    val hotFoodServiceCharge = serviceCharge.calculateHotnessCharge
-    hotFoodServiceCharge shouldEqual 1.10
+  it should "return 20% of service charge in case there is hot FOOD" in {
+    val totalAfterServiceCharge = ServiceCharge.billWithCharge(hotFoodPurchase)
+    val totalFoodOnly = ServiceCharge.bill(hotFoodPurchase)
+    totalAfterServiceCharge shouldEqual 1.10 + totalFoodOnly
   }
 
   it should "not add more than 20 pounds to service charge no matter how much items were ordered" in {
-    val serviceCharge = new ServiceCharge(moreFoods)
-    val totalPrice = serviceCharge.makePurchaseBill
-    val billDifference = totalPrice - serviceCharge.getBill
+    val billWithServiceCharge = ServiceCharge.billWithCharge(moreFoods)
+    val totalBillOnly = ServiceCharge.bill(moreFoods)
+    val billDifference = billWithServiceCharge - totalBillOnly
     billDifference should be <= 20.0
   }
 
-  it should "throw IllegalArgumentError when item not part of available options" in {
-    an[IllegalArgumentException] should be thrownBy {
-      val serviceCharge = new ServiceCharge(oddFoods)
-    }
-  }
 }

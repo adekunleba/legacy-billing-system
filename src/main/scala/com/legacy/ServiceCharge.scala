@@ -1,57 +1,36 @@
 package com.legacy
 
-//Using Case Class in case of Enumeration
-
 sealed trait ServedStatus
 case object HOT extends ServedStatus
 case object COLD extends ServedStatus
 
-trait Purchases {val price: BigDecimal}
-case class Drink(name: String, amount : BigDecimal,  itemType: ServedStatus) extends Purchases {
-  override val price: BigDecimal = amount
-}
-case class Food(name: String, amount: BigDecimal, foodType:ServedStatus) extends Purchases {
-  override val price: BigDecimal = amount
-}
+sealed trait ItemType
+case object DRINK extends ItemType
+case object FOOD extends ItemType
 
+case class MenuItem(name: String, servedStatus: ServedStatus, amount: BigDecimal, itemType: ItemType)
 
-class ServiceCharge(items: List[String]) {
-  private val purchaseItems = items.map(makeItem)
-  private def round(value: BigDecimal): Double = value.setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
-  val totalAmount: Double = makePurchaseBill
+object ServiceCharge{
+  private def  purchaseItems(items: List[String]) :List[MenuItem] =
+    myItems.filterKeys(items.map(_.toLowerCase).contains).values.toList
 
-  private def makeItem(item: String) : Purchases = {
-    item.toLowerCase match {
-      case "cola" => Drink("cola", 0.50, COLD)
-      case "coffee" => Drink("coffee", 1.00, HOT)
-      case "cheese sandwish" => Food("cheese sandwish", 2.00,COLD)
-      case "steak sandwish" => Food("steaK sandwish", 4.50, HOT)
-      case _ => throw new IllegalArgumentException(s"Item $item not found")
+  def  bill(items: List[String]): Double = {
+    purchaseItems(items).map(_.amount).sum.setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  }
+
+  lazy val myItems = Map("cola" -> MenuItem("cola", COLD , 0.50, DRINK),
+    "coffee" -> MenuItem("coffee", HOT, 1.00, DRINK),
+    "cheese sandwish" -> MenuItem("cheese sandwish", COLD, 2.00, FOOD),
+    "steak sandwish" -> MenuItem("steak sandwish", HOT, 4.50, FOOD))
+
+  def billWithCharge(items: List[String]) :Double = {
+    val thisBill = bill(items)
+    val purchased = purchaseItems(items)
+    purchased match {
+      case _ if purchased.exists(x => x.itemType ==FOOD && x.servedStatus ==HOT) => thisBill + (20 * thisBill / 100).min(20)
+      case _ if purchased.exists(x => x.itemType == FOOD) => thisBill + (10 * thisBill / 100).min(20)
+      case _ => thisBill
     }
-  }
-
-  def makePurchaseBill :Double ={
-    round(purchaseItems.map(_.price).sum)
-  }
-
-  def getFoodCharge :Double =  items match {
-    case _ if purchaseItems.forall(x => x.isInstanceOf[Drink]) =>  0
-    case _ if purchaseItems.exists(x => x.isInstanceOf[Food]) => calculateHotnessCharge
-  }
-
-  def getHotnessCharge: List[Boolean] = items.map(makeItem).map {
-      case d: Food if d.foodType == HOT => true
-      case _ => false
-    }
-
-  def calculateHotnessCharge :Double =
-    if (getHotnessCharge.contains(true)) {
-       (20 * totalAmount) / 100
-    } else (10 * totalAmount) / 100
-
-  def getBill :Double = {
-    val totalServiceCharge = getFoodCharge
-    if (totalServiceCharge <= 20) totalAmount + totalServiceCharge else totalAmount + 20
   }
 }
 
