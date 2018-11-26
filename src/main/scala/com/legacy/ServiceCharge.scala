@@ -38,7 +38,8 @@ class ServiceCharge(items: List[String]){
       case _ if purchases.forall(x => x.isInstanceOf[Drink]) =>  totalAmountWithoutServiceCharge
       case _ if purchases.exists(x => x.isInstanceOf[Food]) =>
         val serviceCharge = round(calculateHotnessCharge(purchases, isHot))
-        if (serviceCharge <= 20) totalAmountWithoutServiceCharge + serviceCharge else totalAmountWithoutServiceCharge + 20
+        if (serviceCharge <= 20) totalAmountWithoutServiceCharge + serviceCharge
+        else totalAmountWithoutServiceCharge + 20
     }
   }
   def calculateHotnessCharge(purchases: List[Purchases], f:List[Purchases] => List[Boolean]):BigDecimal =
