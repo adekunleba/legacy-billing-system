@@ -28,34 +28,30 @@ class TestBillSpec extends FlatSpec with Matchers {
        //DRINK("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 
   it should "give total amount of purchases" in {
-    val totalPrice = ServiceCharge.bill(firstPurchase)
+    val (_, totalPrice) = ServiceCharge.billWithCharge(firstPurchase)
     totalPrice shouldEqual 3.5
-    totalPrice.isInstanceOf[Double] shouldEqual true
+    totalPrice.isInstanceOf[BigDecimal] shouldEqual true
   }
 
   it should "not apply any service charge when all purchases are drinks" in {
-    val totalPrice = ServiceCharge.bill(allDrinks)
-    val totalAfterServiceCharge = ServiceCharge.billWithCharge(allDrinks)
+    val (totalAfterServiceCharge, totalPrice) = ServiceCharge.billWithCharge(allDrinks)
     totalAfterServiceCharge shouldEqual totalPrice
   }
 
   it should "return 10% of service charge in case there is FOOD" in {
-    val totalAfterServiceCharge = ServiceCharge.billWithCharge(foodPurchase)
-    val totalPrice  = ServiceCharge.bill(foodPurchase)
+    val (totalAfterServiceCharge, totalPrice) = ServiceCharge.billWithCharge(foodPurchase)
     totalAfterServiceCharge shouldEqual 0.35 + totalPrice
   }
 
   it should "return 20% of service charge in case there is hot FOOD" in {
-    val totalAfterServiceCharge = ServiceCharge.billWithCharge(hotFoodPurchase)
-    val totalFoodOnly = ServiceCharge.bill(hotFoodPurchase)
+    val (totalAfterServiceCharge, totalFoodOnly) = ServiceCharge.billWithCharge(hotFoodPurchase)
     totalAfterServiceCharge shouldEqual 1.10 + totalFoodOnly
   }
 
-  it should "not add more than 20 pounds to service charge no matter how much items were ordered" in {
-    val billWithServiceCharge = ServiceCharge.billWithCharge(moreFoods)
-    val totalBillOnly = ServiceCharge.bill(moreFoods)
-    val billDifference = billWithServiceCharge - totalBillOnly
-    billDifference should be <= 20.0
+  it should "not add more than 20 pounds to service charge no matter how much orderItems were ordered" in {
+    val (totalAfterServiceCharge, totalBillOnly) = ServiceCharge.billWithCharge(moreFoods)
+    val billDifference = totalAfterServiceCharge - totalBillOnly
+    billDifference.toDouble should be <= 20.0
   }
 
 }

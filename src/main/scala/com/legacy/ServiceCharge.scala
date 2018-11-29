@@ -11,26 +11,23 @@ case object FOOD extends ItemType
 case class MenuItem(name: String, servedStatus: ServedStatus, amount: BigDecimal, itemType: ItemType)
 
 object ServiceCharge{
-  private def  purchaseItems(items: List[String]) :List[MenuItem] =
-    myItems.filterKeys(items.map(_.toLowerCase).contains).values.toList
+  private def  purchaseItems(orderItems: List[String]) :List[MenuItem] =
+    menuItems.filterKeys(orderItems.map(_.toLowerCase).contains).values.toList
 
-  lazy val myItems = Map("cola" -> MenuItem("cola", COLD , 0.50, DRINK),
+  lazy val menuItems = Map("cola" -> MenuItem("cola", COLD , 0.50, DRINK),
     "coffee" -> MenuItem("coffee", HOT, 1.00, DRINK),
     "cheese sandwish" -> MenuItem("cheese sandwish", COLD, 2.00, FOOD),
     "steak sandwish" -> MenuItem("steak sandwish", HOT, 4.50, FOOD))
 
-  def  bill(items: List[String]): Double = {
-    purchaseItems(items).map(_.amount).sum.setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
-  }
-
-  def billWithCharge(items: List[String]) :Double = {
-    val thisBill = bill(items)
-    val purchased = purchaseItems(items)
-    purchased match {
-      case _ if purchased.exists(x => x.itemType ==FOOD && x.servedStatus ==HOT) => thisBill + (20 * thisBill / 100).min(20)
-      case _ if purchased.exists(x => x.itemType == FOOD) => thisBill + (10 * thisBill / 100).min(20)
-      case _ => thisBill
+  def billWithCharge(orderItems: List[String]) : (BigDecimal, BigDecimal) = {
+    val totalBill =  purchaseItems(orderItems).map(_.amount).sum.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    val purchased = purchaseItems(orderItems)
+    val serviceCharge :BigDecimal = purchased match {
+      case _ if purchased.exists(x => x.itemType ==FOOD && x.servedStatus ==HOT) =>  (20 * totalBill / 100).min(20)
+      case _ if purchased.exists(x => x.itemType == FOOD) =>  (10 * totalBill / 100).min(10)
+      case _ => 0
     }
+    ((totalBill + serviceCharge).setScale(2, BigDecimal.RoundingMode.HALF_UP), totalBill)
   }
 }
 
