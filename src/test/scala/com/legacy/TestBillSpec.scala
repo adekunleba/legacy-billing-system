@@ -17,6 +17,8 @@ class TestBillSpec extends FlatSpec with Matchers {
 
   val premiumFoods = List("Cola", "Cheese Sandwish", "Lobster")
 
+  val anotherPremiumFoods = List("Cola", "Coffee", "Lobster")
+
 
   val moreFoods = allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
@@ -30,10 +32,10 @@ class TestBillSpec extends FlatSpec with Matchers {
        //DRINK("Coffee", Pounds(1.00), PurchasesTypes.COLD)
 
 
-  val morePremiumFoods = premiumFoods ::: premiumFoods ::: premiumFoods :::
-  premiumFoods ::: premiumFoods ::: premiumFoods ::: premiumFoods ::: premiumFoods :::
-  premiumFoods ::: premiumFoods ::: premiumFoods ::: premiumFoods ::: premiumFoods :::
-  premiumFoods ::: premiumFoods ::: premiumFoods ::: premiumFoods
+  val morePremiumFoods = premiumFoods ::: premiumFoods ::: anotherPremiumFoods :::
+    anotherPremiumFoods ::: premiumFoods ::: anotherPremiumFoods ::: premiumFoods ::: premiumFoods :::
+  premiumFoods ::: premiumFoods ::: anotherPremiumFoods ::: premiumFoods ::: premiumFoods :::
+  premiumFoods ::: premiumFoods ::: anotherPremiumFoods ::: anotherPremiumFoods
 
   it should "give total amount of purchases" in {
     val (_, totalPrice) = ServiceCharge.billWithCharge(firstPurchase)
