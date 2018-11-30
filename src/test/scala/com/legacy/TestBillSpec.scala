@@ -15,6 +15,8 @@ class TestBillSpec extends FlatSpec with Matchers {
 
   val oddFoods = List("Cola", "Fish Sandwish", "Coffee")
 
+  val premiumFoods = List("Cola", "Cheese Sandwish", "Lobster")
+
 
   val moreFoods = allDrinks ::: hotFoodPurchase ::: allDrinks :::
     hotFoodPurchase :::  allDrinks ::: allDrinks ::: hotFoodPurchase :::
@@ -52,6 +54,12 @@ class TestBillSpec extends FlatSpec with Matchers {
     val (totalAfterServiceCharge, totalBillOnly) = ServiceCharge.billWithCharge(moreFoods)
     val billDifference = totalAfterServiceCharge - totalBillOnly
     billDifference.toDouble should be <= 20.0
+  }
+
+  it should "add 25% to the bill in case a premium item is in purchased" in {
+    val (totalAfterServiceCharge, totalBill) = ServiceCharge.billWithCharge(premiumFoods)
+    totalAfterServiceCharge shouldEqual 6.93 + totalBill
+
   }
 
 }
