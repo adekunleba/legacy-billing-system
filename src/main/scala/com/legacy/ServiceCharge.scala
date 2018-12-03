@@ -1,34 +1,39 @@
 package com.legacy
 
-object PurchasesTypes extends Enumeration{
-  val HOT, COLD = Value
-}
+sealed trait ServedStatus
+case object HOT extends ServedStatus
+case object COLD extends ServedStatus
 
-trait Purchases
-case class Drink(name: String, amount : Money,  itemType: PurchasesTypes.Value) extends Purchases
-case class Food(name: String, amount: Money, foodType:PurchasesTypes.Value) extends Purchases
+sealed trait ItemType
+case object DRINK extends ItemType
+case object FOOD extends ItemType
 
-class ServiceCharge(items: List[Purchases], totalAmount:Double) {
-  def getFoodCharge :Double =  items match {
-    case _ if items.forall(x => x.isInstanceOf[Drink]) =>  0
-    case _ if items.exists(x => x.isInstanceOf[Food]) => (10 * totalAmount) / 100
-  }
+sealed trait PremiumItem
+case object Premium extends PremiumItem
+case object NonPremium extends PremiumItem
 
-  def getHotnessCharge: List[Boolean] = items.map {
-      case d: Food if d.foodType == PurchasesTypes.HOT => true
-      case _ => false
+case class MenuItem(name: String, servedStatus: ServedStatus, amount: BigDecimal, itemType: ItemType, classType: PremiumItem)
+
+object ServiceCharge{
+  private def  purchaseItems(orderItems: List[String]) :List[MenuItem] =
+    menuItems.filterKeys(orderItems.map(_.toLowerCase).contains).values.toList
+
+  lazy val menuItems = Map("cola" -> MenuItem("cola", COLD , 0.50, DRINK, NonPremium),
+    "coffee" -> MenuItem("coffee", HOT, 1.00, DRINK, NonPremium),
+    "cheese sandwish" -> MenuItem("cheese sandwish", COLD, 2.00, FOOD, NonPremium),
+    "steak sandwish" -> MenuItem("steak sandwish", HOT, 4.50, FOOD, NonPremium),
+    "lobster" -> MenuItem("lobster",COLD, 25.2, FOOD, Premium))
+
+  def billWithCharge(orderItems: List[String]) : (BigDecimal, BigDecimal) = {
+    val totalBill =  purchaseItems(orderItems).map(_.amount).sum.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    val purchased = purchaseItems(orderItems)
+    val serviceCharge :BigDecimal = purchased match {
+      case _ if purchased.exists(x => x.classType == Premium && x.itemType == FOOD) => (25 * totalBill / 100).min(40)
+      case _ if purchased.exists(x => x.itemType ==FOOD && x.servedStatus ==HOT) =>  (20 * totalBill / 100).min(20)
+      case _ if purchased.exists(x => x.itemType == FOOD) =>  (10 * totalBill / 100).min(10)
+      case _ => 0
     }
-
-  def calculateHotnessCharge :Double =
-    if (getHotnessCharge.contains(true)) {
-       (20 * totalAmount) / 100
-    } else 0
-
-
-
-  def getBill :Double = {
-    val totalServiceCharge = calculateHotnessCharge + getFoodCharge
-    if (totalServiceCharge <= 20) totalAmount + totalServiceCharge else totalAmount + 20
+    ((totalBill + serviceCharge).setScale(2, BigDecimal.RoundingMode.HALF_UP), totalBill)
   }
 }
 
